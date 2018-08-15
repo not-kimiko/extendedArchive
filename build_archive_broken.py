@@ -76,7 +76,9 @@ def to_xml(xmlfile, name, src_dict):
     root.set('title', 'source_library')
 
     source_element = create_xml_element(root, 'source',
-                                        dict(name=name,
+                                        dict(name = name,
+                                             Photon_Flux = src_dict['Photon_Flux'],
+                                             Energy_Flux = src_dict['Energy_Flux'],
                                              type='DiffuseSource'))
 
     #filename = utils.path_to_xmlpath(self.filefunction)
@@ -193,19 +195,19 @@ def main():
             Column(name='Model_SemiMinor', format='E', unit='deg', disp='E7.3'),
             Column(name='Model_PosAng',  format='E', unit='deg', disp='E6.1'),
             Column(name='Spatial_Function', format='15A'),
+            Column(name='Spatial_Filename', format='50A'),
             Column(name='Spectral_Function', format='12A'),
             Column(name='Spectral_Filename', format='40A'),
             Column(name='Name_1FGL', format='18A'),
             Column(name='Name_2FGL', format='18A'),
             Column(name='Name_3FGL', format='18A'),
-            Column(name='Spatial_Filename', format='50A'),
-            Column(name='Spectral_Param_Name', format='45A9'),
-            Column(name='Spectral_Param_Value',
-                    format='E', dim=str(npar_max), disp='E9.4'),
-            Column(name='Spectral_Param_Error',
-                    format='E', dim=str(npar_max), disp='E9.4'),
-            Column(name='Spectral_Param_Scale',
-                    format='E', dim=str(npar_max)),
+#            Column(name='Spectral_Param_Name', format='45A9'),
+#            Column(name='Spectral_Param_Value',
+#                    format='E', dim=str(npar_max), disp='E9.4'),
+#            Column(name='Spectral_Param_Error',
+#                    format='E', dim=str(npar_max), disp='E9.4'),
+#            Column(name='Spectral_Param_Scale',
+#                    format='E', dim=str(npar_max)),
             ]
 
 
