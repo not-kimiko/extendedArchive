@@ -47,7 +47,7 @@ def to_xml(xmlfile, name, src_dict):
     spatial_type = src_dict['Spatial_Function']
     spectral_type = src_dict['Spectral_Function']
     defaults = {
-        'Prefactor': {'scale': 1, 'name': 'Prefactor', 'free': 0, 'min': 1, 'max': 1},
+            'Prefactor': {'scale': 1, 'name': 'Prefactor', 'free': 0, 'min': 1, 'max': 1, 'value': 1},
         'RA': {'scale': 1, 'name': 'RA', 'free': 0, 'min': 0, 'max': 360},
         'DEC': {'scale': 1, 'name': 'DEC', 'free': 0, 'min': -90, 'max': 90},
         'Radius': {'scale': 1, 'name': 'Radius', 'free': 0, 'min': 0, 'max': 10},
@@ -142,28 +142,34 @@ def build_column_array(column_name,sources,npar_max):
 
     if column_name in spec_par_list:
     
+        collist = []
     	for k, v in sources.items():
     	
             params = v.get('Spectral_Parameters')
             npars = len(params.keys())
     
-        if column_name == 'Spectral_Param_Name':
-            collist = [str(params[i]['name']) for i in params.keys()] + [''] * (npar_max - npars)
-            
-        elif column_name == 'Spectral_Param_Value':
-	    collist = [float(params[i]['value']) for i in params.keys()] + [np.nan] * (npar_max - npars)
-			
-	elif column_name == 'Spectral_Param_Scale':
-	    collist = [float(params[i]['scale']) for i in params.keys()] + [np.nan] * (npar_max - npars)
-			
-	else:
-            collist = [float(params[i]['error']) if 'error' in params[i] else np.nan for i in params.keys()] \
-				+ [np.nan] * (npar_max - npars)
+            if column_name == 'Spectral_Param_Name':
+                colvec = [str(params[i]['name']) for i in params.keys()] + [''] * (npar_max - npars)
+                # print(colvec)
+                collist.append(colvec)
+                print(collist)
+                
+            elif column_name == 'Spectral_Param_Value':
+                collist += [float(params[i]['value']) for i in params.keys()] + [np.nan] * (npar_max - npars)
+                            
+            elif column_name == 'Spectral_Param_Scale':
+                collist += [float(params[i]['scale']) for i in params.keys()] + [np.nan] * (npar_max - npars)
+                            
+            else:
+                collist += [float(params[i]['error']) if 'error' in params[i] else np.nan for i in params.keys()] \
+                                    + [np.nan] * (npar_max - npars)
+
+        carray = np.array(collist, dtype=np.object)
 
     else: 
-	collist = [sources[k].get(column_name, None) for k in sources.keys()]
+	carray = np.asarray([sources[label].get(column_name, None) for label in sources.keys()])
 
-    return np.asarray(collist)
+    return carray
 
 
 def main():
@@ -201,13 +207,13 @@ def main():
             Column(name='Name_1FGL', format='18A'),
             Column(name='Name_2FGL', format='18A'),
             Column(name='Name_3FGL', format='18A'),
-#            Column(name='Spectral_Param_Name', format='45A9'),
-#            Column(name='Spectral_Param_Value',
-#                    format='E', dim=str(npar_max), disp='E9.4'),
-#            Column(name='Spectral_Param_Error',
-#                    format='E', dim=str(npar_max), disp='E9.4'),
-#            Column(name='Spectral_Param_Scale',
-#                    format='E', dim=str(npar_max)),
+            Column(name='Spectral_Param_Name', format='45A9' ),
+            Column(name='Spectral_Param_Value',
+                    format='E', dim=str(npar_max), disp='E9.4'),
+            Column(name='Spectral_Param_Error',
+                    format='E', dim=str(npar_max), disp='E9.4'),
+            Column(name='Spectral_Param_Scale',
+                    format='E', dim=str(npar_max)),
             ]
 
 
@@ -216,6 +222,7 @@ def main():
  
     
     record = FITS_rec.from_columns(cols)
+    record.sort(order="RAJ2000")
        
        
     outdir = args.outname + "_v" + args.vernum
